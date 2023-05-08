@@ -15,6 +15,4 @@ urlpatterns = [
     path('leerPacientes',views.leerPacientes,name='LeerPacientes'),
     path('leerTurnos',views.leerTurnos,name='LeerTurnos'),
 
-    path('buscarMedicos',views.busquedaMedico,name="BuscarMedicos"),
-    path('buscar/',views.buscar),
 ]

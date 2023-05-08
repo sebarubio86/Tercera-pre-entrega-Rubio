@@ -2,16 +2,42 @@ from django.shortcuts import render
 from App1.models import *
 from django.http import HttpResponse
 from App1.forms import *
+from django.db.models import Q
+from .models import *
 
 # Create your views here.
 def inicio(request):
     return render(request, 'App1/inicio.html')
 
 def medicos(request):
-    return render(request,'App1/medicos.html')
+    queryset = request.GET.get('buscar')
+    print(queryset)
+    
+    if queryset:
+        formulario=Medico.objects.filter(
+            Q(nombre__icontains = queryset) |
+            Q(apellido__icontains = queryset) |
+            Q(especialidad__icontains = queryset)
+        )
+        print(formulario)
+        return render(request,'App1/verBusqueda.html',{"formulario":formulario})
+    else:
+        return render(request,'App1/medicos.html')
 
 def pacientes(request):
-    return render(request,'App1/pacientes.html')
+    queryset = request.GET.get('buscar')
+    print(queryset)
+    
+    if queryset:
+        formulario=Paciente.objects.filter(
+            Q(nombre__icontains = queryset) |
+            Q(apellido__icontains = queryset) |
+            Q(email__icontains = queryset)
+        )
+        print(formulario)
+        return render(request,'App1/verBusqueda.html',{"formulario":formulario})
+    else:
+        return render(request,'App1/pacientes.html')
 
 def turnos(request):
     return render(request,'App1/turnos.html')
@@ -56,7 +82,7 @@ def turnoFormulario(request):
         
         if miFormulario.is_valid:
             informacion = miFormulario.cleaned_data
-            asdasd = Turno(int(informacion['id']),str(informacion['dni']),str(informacion['fecha']), informacion['apellido'],)
+            asdasd = Turno(int(informacion['id']),int(informacion['dniPaciente']),str(informacion['fecha']), str(informacion['apellidoMedico'],))
             asdasd.save()
             return render(request, "App1/inicio.html")
     else:
@@ -79,20 +105,3 @@ def leerTurnos(request):
     turnos= Turno.objects.all() # trae a todos los turnos
     contexto= {"turnos": turnos}
     return render(request, "App1/leerTurnos.html",contexto)
-
-
-#----------------------------------------------------------
-def busquedaMedico(request):
-    return render(request,'App1/buscarMedicos.html')
-
-
-def buscar(request):
-    if request.GET['medico']:
-        medico = request.GET['medico']
-        medicos= Medico.objects.filter(nombre__icontains=medico)
-
-        return render(request,'App1/resultadoBusqueda.html', {"medicos":medicos,})
-    else:
-        respuesta= "No enviaste datos"
-
-    return HttpResponse(respuesta)
